@@ -145,7 +145,6 @@ class GVPTransformerModel(nn.Module):
 
         Args:
             coords: L x 3 x 3 list representing one backbone
-            num_samples: Number of sequences to sample
             partial_seq: Optional, partial sequence with mask tokens if part of
                 the sequence is known
             temperature: sampling temperature, use low temperature for higher
@@ -156,16 +155,16 @@ class GVPTransformerModel(nn.Module):
         # Convert to batch format
         batch_converter = CoordBatchConverter(self.decoder.dictionary)
         batch_coords, confidence, _, _, padding_mask = (
-            batch_converter([(coords, confidence, None)]*num_samples, device=device)
+            batch_converter([(coords, confidence, None)], device=device)
         )
         
         # Start with prepend token
         mask_idx = self.decoder.dictionary.get_idx('<mask>')
-        sampled_tokens = torch.full((num_samples, 1+L), mask_idx, dtype=int)
-        sampled_tokens[:, 0] = self.decoder.dictionary.get_idx('<cath>')
+        sampled_tokens = torch.full((1, 1+L), mask_idx, dtype=int)
+        sampled_tokens[0, 0] = self.decoder.dictionary.get_idx('<cath>')
         if partial_seq is not None:
             for i, c in enumerate(partial_seq):
-                sampled_tokens[:, i+1] = self.decoder.dictionary.get_idx(c)
+                sampled_tokens[0, i+1] = self.decoder.dictionary.get_idx(c)
             
         # Save incremental states for faster sampling
         incremental_state = dict()
@@ -176,21 +175,25 @@ class GVPTransformerModel(nn.Module):
         # Make sure all tensors are on the same device if a GPU is present
         if device:
             sampled_tokens = sampled_tokens.to(device)
+
+        sampled_seqs = []
+        for _ in range(num_samples):
         
-        # Decode one token at a time
-        for i in range(1, L+1):
-            logits, _ = self.decoder(
-                sampled_tokens[:, :i], 
-                encoder_out,
-                incremental_state=incremental_state,
-            )
-            logits = logits.view(-1, logits.size(-1))  # flatten the tensor before applying softmax
-            logits /= temperature
-            probs = F.softmax(logits, dim=-1)
-            if (sampled_tokens.view(-1) == mask_idx).any():  # flatten the tensor before comparing with mask_idx
-                samples = torch.multinomial(probs, 1).squeeze(-1)
-                sampled_tokens = samples.view(num_samples, -1)  # reshape back to original shape after sampling
-        sampled_seq = sampled_tokens[:, 1:]
+            # Decode one token at a time
+            for i in range(1, L+1):
+                logits, _ = self.decoder(
+                    sampled_tokens[:, :i], 
+                    encoder_out,
+                    incremental_state=incremental_state,
+                )
+                logits = logits[0].transpose(0, 1)
+                logits /= temperature
+                probs = F.softmax(logits, dim=-1)
+                if sampled_tokens[0, i] == mask_idx:
+                    sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
+            sampled_seq = sampled_tokens[0, 1:]
+            sampled_seq = ''.join([self.decoder.dictionary.get_tok(a) for a in sampled_seq])
+            sampled_seqs.append(sampled_seq)
         
         # Convert back to string via lookup
-        return [''.join([self.decoder.dictionary.get_tok(a) for a in seq]) for seq in sampled_seq]
+        return sampled_seqs

@@ -184,11 +184,12 @@ class GVPTransformerModel(nn.Module):
                 encoder_out,
                 incremental_state=incremental_state,
             )
-            logits = logits.transpose(1, 2)
+            logits = logits.view(-1, logits.size(-1))  # flatten the tensor before applying softmax
             logits /= temperature
             probs = F.softmax(logits, dim=-1)
-            if (sampled_tokens[:, i] == mask_idx).any():
-                sampled_tokens[:, i] = torch.multinomial(probs.squeeze(-1), 1).squeeze(-1)
+            if (sampled_tokens.view(-1) == mask_idx).any():  # flatten the tensor before comparing with mask_idx
+                samples = torch.multinomial(probs, 1).squeeze(-1)
+                sampled_tokens = samples.view(num_samples, -1)  # reshape back to original shape after sampling
         sampled_seq = sampled_tokens[:, 1:]
         
         # Convert back to string via lookup

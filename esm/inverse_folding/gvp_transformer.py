@@ -265,6 +265,7 @@ class GVPTransformerModel(nn.Module):
         # Make sure all tensors are on the same device if a GPU is present
         if device:
             sampled_tokens = sampled_tokens.to(device)
+            sampled_tokens = sampled_tokens.repeat(num_samples, 1)
 
         # Get encoder output for all samples
         encoder_out = {}

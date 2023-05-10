@@ -148,6 +148,7 @@ class GVPTransformerModel(nn.Module):
                 print(probs.shape)
             if sampled_tokens[0, i] == mask_idx:
                 sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
+                print(torch.multinomial(probs, 1).squeeze(-1))
         sampled_seq = sampled_tokens[0, 1:]
         
         # Convert back to string via lookup
@@ -314,6 +315,8 @@ class GVPTransformerModel(nn.Module):
 
             for j in range(logits.shape[1]):  # loop over sequence length
                 probs = F.softmax(logits[:, j, :], dim=-1)
+                print(probs.shape)
+                print(torch.multinomial(probs, 1).squeeze(-1).shape)
                 if sampled_tokens[j:j+1, i] == mask_idx:
                     sampled_tokens[j:j+1, i] = torch.multinomial(probs, 1).squeeze(-1)
 

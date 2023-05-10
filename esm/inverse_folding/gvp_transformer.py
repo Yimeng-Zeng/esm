@@ -85,7 +85,7 @@ class GVPTransformerModel(nn.Module):
         )
         return logits, extra
     
-    def sample(self, coords, partial_seq=None, temperature=1.0, confidence=None, device=None):
+    def sample(self, coords, partial_seq=None, temperature=1.0, confidence=None, device=None, flag1=False, flag2=False, flag3=False, flag4=False):
         """
         Samples sequences based on multinomial sampling (no beam search).
 
@@ -103,6 +103,10 @@ class GVPTransformerModel(nn.Module):
         batch_coords, confidence, _, _, padding_mask = (
             batch_converter([(coords, confidence, None)], device=device)
         )
+
+        if flag1:
+            #print("batch_coords", batch_coords.shape)
+            print("batch_coords", batch_coords)
         
         # Start with prepend token
         mask_idx = self.decoder.dictionary.get_idx('<mask>')
@@ -117,10 +121,16 @@ class GVPTransformerModel(nn.Module):
         
         # Run encoder only once
         encoder_out = self.encoder(batch_coords, padding_mask, confidence)
+
+        if flag2:
+            print("encoder_out", encoder_out['encoder_out'][0])
         
         # Make sure all tensors are on the same device if a GPU is present
         if device:
             sampled_tokens = sampled_tokens.to(device)
+
+        if flag3:
+            print("sampled_tokens", sampled_tokens)
         
         # Decode one token at a time
         for i in range(1, L+1):

@@ -309,6 +309,7 @@ class GVPTransformerModel(nn.Module):
                 #print("mask_idx.shape", mask_idx.shape)
 
             for j in range(logits.shape[1]):  # loop over sequence length
+                print(sampled_tokens[j:j+1, i])
                 sampled_tokens[j:j+1, i] = torch.where(sampled_tokens[j:j+1, i] == mask_idx, 
                                                 torch.multinomial(probs[:, j, :], 1).squeeze(-1), 
                                                 sampled_tokens[j:j+1, i])

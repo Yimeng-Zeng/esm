@@ -302,7 +302,7 @@ class GVPTransformerModel(nn.Module):
                 #print("logits", logits)
                 print("logits.shape", logits.shape)
 
-            probs = F.softmax(logits, dim=-1)
+            #probs = F.softmax(logits, dim=-1)
 
             if flag3:
                 #print("probs", probs)
@@ -312,18 +312,17 @@ class GVPTransformerModel(nn.Module):
                 print("mask_idx", mask_idx)
                 #print("mask_idx.shape", mask_idx.shape)
 
-            # for j in range(logits.shape[1]):  # loop over sequence length
-            #     print(sampled_tokens[j:j+1, i])
-            #     sampled_tokens[j:j+1, i] = torch.where(sampled_tokens[j:j+1, i] == mask_idx, 
-            #                                     torch.multinomial(probs[:, j, :], 1).squeeze(-1), 
-            #                                     sampled_tokens[j:j+1, i])
-
             for j in range(logits.shape[1]):  # loop over sequence length
-                # print(sampled_tokens[j:j+1, i])
+                probs = F.softmax(logits[:, j, :], dim=-1)
                 if sampled_tokens[j:j+1, i] == mask_idx:
-                    print(torch.multinomial(probs[:, j, :], 1).squeeze(-1))
-                    print(probs[:, j, :].shape)
-                    sampled_tokens[j:j+1, i] = torch.multinomial(probs[:, j, :], 1).squeeze(-1)
+                    sampled_tokens[j:j+1, i] = torch.multinomial(probs, 1).squeeze(-1)
+
+            # for j in range(logits.shape[1]):  # loop over sequence length
+            #     # print(sampled_tokens[j:j+1, i])
+            #     if sampled_tokens[j:j+1, i] == mask_idx:
+            #         print(torch.multinomial(probs[:, j, :], 1).squeeze(-1))
+            #         print(probs[:, j, :].shape)
+            #         sampled_tokens[j:j+1, i] = torch.multinomial(probs[:, j, :], 1).squeeze(-1)
             
 
         # Convert tokens to strings

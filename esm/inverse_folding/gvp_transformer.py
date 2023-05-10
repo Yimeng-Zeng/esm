@@ -145,7 +145,7 @@ class GVPTransformerModel(nn.Module):
             if i == 1:
                 print("sampled_tokens", sampled_tokens)
                 print("shape", sampled_tokens.shape)
-                print(torch.multinomial(probs, 1).squeeze(-1))
+                print(probs.shape)
             if sampled_tokens[0, i] == mask_idx:
                 sampled_tokens[:, i] = torch.multinomial(probs, 1).squeeze(-1)
         sampled_seq = sampled_tokens[0, 1:]
@@ -322,6 +322,7 @@ class GVPTransformerModel(nn.Module):
                 # print(sampled_tokens[j:j+1, i])
                 if sampled_tokens[j:j+1, i] == mask_idx:
                     print(torch.multinomial(probs[:, j, :], 1).squeeze(-1))
+                    print(probs[:, j, :].shape)
                     sampled_tokens[j:j+1, i] = torch.multinomial(probs[:, j, :], 1).squeeze(-1)
             
 

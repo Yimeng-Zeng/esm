@@ -117,8 +117,6 @@ class GVPTransformerModel(nn.Module):
         
         # Run encoder only once
         encoder_out = self.encoder(batch_coords, padding_mask, confidence)
-
-        print(encoder_out)
         
         # Make sure all tensors are on the same device if a GPU is present
         if device:
@@ -174,8 +172,6 @@ class GVPTransformerModel(nn.Module):
         
         # Run encoder only once
         all_encoder_out = self.encoder(batch_coords, padding_mask, confidence)
-
-        print(all_encoder_out)
         
         # Make sure all tensors are on the same device if a GPU is present
         if device:
@@ -185,7 +181,10 @@ class GVPTransformerModel(nn.Module):
 
         for sample_idx in range(num_samples):
 
-            encoder_out = all_encoder_out[sample_idx]
+            # Get encoder output for this sample, sample_idx th element for each key in all_encoder_out
+            encoder_out = {}
+            for key in all_encoder_out.keys():
+                encoder_out[key] = all_encoder_out[key][sample_idx]
         
             # Decode one token at a time
             for i in range(1, L+1):

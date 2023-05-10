@@ -184,6 +184,8 @@ class GVPTransformerModel(nn.Module):
             # Get encoder output for this sample, sample_idx th element for each key in all_encoder_out
             encoder_out = {}
             encoder_out['encoder_out'] = [all_encoder_out['encoder_out'][0][:, sample_idx:sample_idx+1, :]]
+            print(all_encoder_out['encoder_padding_mask'])
+            print(all_encoder_out['encoder_padding_mask'][0].shape)
             for key in all_encoder_out.keys():
                 if key != 'encoder_out':
                     try:

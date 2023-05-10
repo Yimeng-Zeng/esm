@@ -266,11 +266,11 @@ class GVPTransformerModel(nn.Module):
         if device:
             sampled_tokens = sampled_tokens.to(device)
             if flag1:
-                print("sampled_tokens", sampled_tokens)
+                #print("sampled_tokens", sampled_tokens)
                 print("sampled_tokens.shape", sampled_tokens.shape)
             sampled_tokens = sampled_tokens.repeat(num_samples, 1)
             if flag1:
-                print("sampled_tokens", sampled_tokens)
+                #print("sampled_tokens", sampled_tokens)
                 print("sampled_tokens.shape", sampled_tokens.shape)
 
         # Get encoder output for all samples
@@ -295,18 +295,18 @@ class GVPTransformerModel(nn.Module):
             logits /= temperature
 
             if flag2:
-                print("logits", logits)
+                #print("logits", logits)
                 print("logits.shape", logits.shape)
 
             probs = F.softmax(logits, dim=-1)
 
             if flag3:
-                print("probs", probs)
+                #print("probs", probs)
                 print("probs.shape", probs.shape)
 
             if flag4:
                 print("mask_idx", mask_idx)
-                print("mask_idx.shape", mask_idx.shape)
+                #print("mask_idx.shape", mask_idx.shape)
 
             for j in range(logits.shape[1]):  # loop over sequence length
                 sampled_tokens[:, i] = torch.where(sampled_tokens[:, i] == mask_idx, 

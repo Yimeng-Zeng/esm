@@ -288,9 +288,10 @@ class GVPTransformerModel(nn.Module):
             logits = logits.transpose(0, 1)
             logits /= temperature
             probs = F.softmax(logits, dim=-1)
-            sampled_tokens[:, i] = torch.where(sampled_tokens[:, i] == mask_idx, 
-                                            torch.multinomial(probs, 1).squeeze(-1), 
-                                            sampled_tokens[:, i])
+            for j in range(logits.shape[1]):  # loop over sequence length
+                sampled_tokens[:, i] = torch.where(sampled_tokens[:, i] == mask_idx, 
+                                                torch.multinomial(probs[:, j, :], 1).squeeze(-1), 
+                                                sampled_tokens[:, i])
 
         # Convert tokens to strings
         all_seqs = []

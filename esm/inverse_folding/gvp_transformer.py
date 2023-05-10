@@ -228,7 +228,7 @@ class GVPTransformerModel(nn.Module):
         return all_seqs
 
 
-    def sample_batch2(self, coords, num_samples=1, partial_seq=None, temperature=1.0, confidence=None, device=None):
+    def sample_batch2(self, coords, num_samples=1, partial_seq=None, temperature=1.0, confidence=None, device=None, flag1=False, flag2=False, flag3=False, flag4=False):
         """
         Samples sequences based on multinomial sampling (no beam search).
 
@@ -265,7 +265,13 @@ class GVPTransformerModel(nn.Module):
         # Make sure all tensors are on the same device if a GPU is present
         if device:
             sampled_tokens = sampled_tokens.to(device)
+            if flag1:
+                print("sampled_tokens", sampled_tokens)
+                print("sampled_tokens.shape", sampled_tokens.shape)
             sampled_tokens = sampled_tokens.repeat(num_samples, 1)
+            if flag1:
+                print("sampled_tokens", sampled_tokens)
+                print("sampled_tokens.shape", sampled_tokens.shape)
 
         # Get encoder output for all samples
         encoder_out = {}
@@ -287,7 +293,21 @@ class GVPTransformerModel(nn.Module):
             )
             logits = logits.transpose(0, 1)
             logits /= temperature
+
+            if flag2:
+                print("logits", logits)
+                print("logits.shape", logits.shape)
+
             probs = F.softmax(logits, dim=-1)
+
+            if flag3:
+                print("probs", probs)
+                print("probs.shape", probs.shape)
+
+            if flag4:
+                print("mask_idx", mask_idx)
+                print("mask_idx.shape", mask_idx.shape)
+
             for j in range(logits.shape[1]):  # loop over sequence length
                 sampled_tokens[:, i] = torch.where(sampled_tokens[:, i] == mask_idx, 
                                                 torch.multinomial(probs[:, j, :], 1).squeeze(-1), 

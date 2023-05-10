@@ -314,9 +314,9 @@ class GVPTransformerModel(nn.Module):
                 #print("mask_idx.shape", mask_idx.shape)
 
             for j in range(num_samples):
-                logits = logits[j].transpose(0, 1)
-                logits /= temperature
-                probs = F.softmax(logits, dim=-1)
+                logits_j = logits[j].transpose(0, 1)
+                logits_j /= temperature
+                probs = F.softmax(logits_j, dim=-1)
                 print(probs.shape)
                 print(torch.multinomial(probs, 1).squeeze(-1).shape)
                 if sampled_tokens[j:j+1, i] == mask_idx:

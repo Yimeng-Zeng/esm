@@ -183,12 +183,13 @@ class GVPTransformerModel(nn.Module):
 
             # Get encoder output for this sample, sample_idx th element for each key in all_encoder_out
             encoder_out = {}
-            for key in all_encoder_out.keys():
-                try:
-                    encoder_out[key] = all_encoder_out[key][sample_idx:sample_idx+1]
-                except:
-                    encoder_out[key] = all_encoder_out[key]
-                    print(all_encoder_out[key])
+            encoder_out['encoder_out'] = all_encoder_out['encoder_out'][:, sample_idx:sample_idx+1, :]
+            # for key in all_encoder_out.keys():
+            #     try:
+            #         encoder_out[key] = all_encoder_out[key][sample_idx:sample_idx+1]
+            #     except:
+            #         encoder_out[key] = all_encoder_out[key]
+            #         print(all_encoder_out[key])
         
             # Decode one token at a time
             for i in range(1, L+1):

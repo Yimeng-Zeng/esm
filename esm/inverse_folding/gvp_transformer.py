@@ -183,7 +183,7 @@ class GVPTransformerModel(nn.Module):
 
             # Get encoder output for this sample, sample_idx th element for each key in all_encoder_out
             encoder_out = {}
-            encoder_out['encoder_out'] = all_encoder_out['encoder_out'][0][:, sample_idx:sample_idx+1, :]
+            encoder_out['encoder_out'] = [all_encoder_out['encoder_out'][0][:, sample_idx:sample_idx+1, :]]
             # for key in all_encoder_out.keys():
             #     try:
             #         encoder_out[key] = all_encoder_out[key][sample_idx:sample_idx+1]

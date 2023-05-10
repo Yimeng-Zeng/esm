@@ -139,6 +139,8 @@ class GVPTransformerModel(nn.Module):
                 encoder_out,
                 incremental_state=incremental_state,
             )
+            if i == 1:
+                print("logits shape", logits.shape)
             logits = logits[0].transpose(0, 1)
             logits /= temperature
             probs = F.softmax(logits, dim=-1)
@@ -312,7 +314,7 @@ class GVPTransformerModel(nn.Module):
                 #print("mask_idx.shape", mask_idx.shape)
 
             for j in range(logits.shape[1]):  # loop over sequence length
-                logits = logits[0][:,j,:].transpose(0, 1)
+                logits = logits[:,j,0].transpose(0, 1)
                 logits /= temperature
                 probs = F.softmax(logits, dim=-1)
                 print(probs.shape)

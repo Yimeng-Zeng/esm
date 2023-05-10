@@ -185,7 +185,7 @@ class GVPTransformerModel(nn.Module):
             encoder_out = {}
             for key in all_encoder_out.keys():
                 try:
-                    encoder_out[key] = all_encoder_out[key][sample_idx]
+                    encoder_out[key] = all_encoder_out[key][sample_idx:sample_idx+1]
                 except:
                     encoder_out[key] = all_encoder_out[key]
                     print(all_encoder_out[key])

@@ -313,7 +313,7 @@ class GVPTransformerModel(nn.Module):
                 print("mask_idx", mask_idx)
                 #print("mask_idx.shape", mask_idx.shape)
 
-            for j in range(logits.shape[1]):  # loop over sequence length
+            for j in range(num_samples):
                 logits = logits[j].transpose(0, 1)
                 logits /= temperature
                 probs = F.softmax(logits, dim=-1)

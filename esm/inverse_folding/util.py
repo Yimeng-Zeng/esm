@@ -140,7 +140,7 @@ def score_sequence(model, alphabet, coords, seq):
     ll_withcoord = []
     for seq in range(len(loss)):
         ll_fullseq.append(-np.sum(loss[seq] * ~target_padding_mask[seq]) / np.sum(~target_padding_mask[seq]))
-        coord_mask = np.all(np.isfinite(coords[seq]), axis=(-1, -2))
+        coord_mask = np.all(np.isfinite(coords), axis=(-1, -2))
         ll_withcoord.append(-np.sum(loss[seq] * coord_mask) / np.sum(coord_mask))
 
     return ll_fullseq, ll_withcoord

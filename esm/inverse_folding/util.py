@@ -129,7 +129,7 @@ def get_sequence_loss(model, alphabet, coords, seq):
     loss = F.cross_entropy(logits, target, reduction='none')
 
     loss = loss.cpu().detach().numpy()
-    target_padding_mask = target_padding_mask[0].cpu().numpy()
+    target_padding_mask = target_padding_mask.cpu().numpy()
     return loss, target_padding_mask
 
 

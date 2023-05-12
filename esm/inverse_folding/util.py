@@ -125,18 +125,8 @@ def get_sequence_loss(model, alphabet, coords, seq):
     target = tokens[:, 1:]
     target_padding_mask = (target == alphabet.padding_idx)
 
-    print("prev_output_tokens", prev_output_tokens.shape)
-
-
     logits, _ = model.forward(coords, padding_mask, confidence, prev_output_tokens)
-
-    print("logits", logits.shape)
-    print("target", target.shape)
-
     loss = F.cross_entropy(logits, target, reduction='none')
-
-    print("loss", loss.shape)
-    print("loss", loss)
 
     loss = loss[0].cpu().detach().numpy()
     target_padding_mask = target_padding_mask[0].cpu().numpy()
@@ -145,10 +135,14 @@ def get_sequence_loss(model, alphabet, coords, seq):
 
 def score_sequence(model, alphabet, coords, seq):
     loss, target_padding_mask = get_sequence_loss(model, alphabet, coords, seq)
-    ll_fullseq = -np.sum(loss * ~target_padding_mask) / np.sum(~target_padding_mask)
-    # Also calculate average when excluding masked portions
-    coord_mask = np.all(np.isfinite(coords), axis=(-1, -2))
-    ll_withcoord = -np.sum(loss * coord_mask) / np.sum(coord_mask)
+    # calculate log-likelihood for each sequence
+    ll_fullseq = []
+    ll_withcoord = []
+    for seq in range(len(loss)):
+        ll_fullseq.append(-np.sum(loss[seq] * ~target_padding_mask[seq]) / np.sum(~target_padding_mask[seq]))
+        coord_mask = np.all(np.isfinite(coords[seq]), axis=(-1, -2))
+        ll_withcoord.append(-np.sum(loss[seq] * coord_mask) / np.sum(coord_mask))
+
     return ll_fullseq, ll_withcoord
 
 
